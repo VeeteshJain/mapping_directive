@@ -26,7 +26,7 @@
 		<div ng-bind-html="person.name | highlight: $select.search"></div>
 	</ui-select-choices>
 </ui-select>
-<button class="btn" data-ng-class="{'btn-danger': !$last, 'btn-primary': $last}" ng-show="!value.isMandatory" data-ng-click="modifyRow($index, $last, value)">add</button>
+<button class="btn glyphicon" data-ng-class="{'btn-danger glyphicon-minus': !$last, 'btn-primary glyphicon-plus': $last}" ng-show="!value.isMandatory" data-ng-click="modifyRow($index, $last, value)"></button>
 </td>
 </tr>
 </tbody>
