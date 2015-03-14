@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Example - example-example51-production</title>
+  
+
+  <script src="angular.js"></script>
+  <script src="angular-sanitize.js"></script>
+  <link rel="stylesheet" href="bootstrap.css">
+  <link rel="stylesheet" href="select.css">
+  
+  <script src="select.js"></script>
+
+  
+</head>
+<body ng-app="compileExample">
+  <script>
+    angular.module('compileExample', ['ngSanitize', 'ui.select'], function($compileProvider) {
+    // configure new 'compile' directive by passing a directive
+    // factory function. The factory function injects the '$compile'
+    $compileProvider.directive('compile', function($compile) {
+      // directive factory creates a link function
+      return {
+        link: function(scope, element, attrs) {
+          scope.$watch('mapOptions.map', function(newVal, oldVal, tScope){
+            angular.forEach(newVal, function(value, index){
+              if(oldVal.length > index){
+                if(oldVal[index].source && oldVal[index].source.name){
+                  var toRemove = tScope.mapOptions.fieldsLocked.source.indexOf(oldVal[index].source.name);
+                  if(toRemove !== -1){
+                    tScope.mapOptions.fieldsLocked.source.splice(toRemove, 1);
+                  }
+                }
+                if(oldVal[index].target && oldVal[index].target.name){
+                  var toRemove = tScope.mapOptions.fieldsLocked.target.indexOf(oldVal[index].target.name);
+                  if(toRemove !== -1){
+                    tScope.mapOptions.fieldsLocked.target.splice(toRemove, 1);
+                  }
+                }
+              }
+              if(value.source && value.source.name){
+                var toAdd = tScope.mapOptions.fieldsLocked.source.indexOf(value.source.name);
+                if(toAdd === -1){
+                  tScope.mapOptions.fieldsLocked.source.push(value.source.name);
+                }
+              }
+              if(value.target && value.target.name){
+                var toAdd = tScope.mapOptions.fieldsLocked.target.indexOf(value.target.name);
+                if(toAdd === -1){
+                  tScope.mapOptions.fieldsLocked.target.push(value.target.name);
+                }
+              }
+            });
+}, true);
+
+scope.modifyRow = function(index, isLast){
+  if(isLast){
+    scope.customPush('map', {
+      'source': undefined,
+      'target': undefined
+    });
+  }else{
+    scope.customSplice('map', index);
+  }
+}
+scope.customPush = function(member, object){
+  scope.mapOptions[member].push(object);
+  scope.mapOptions.isChange = !scope.mapOptions.isChange;
+};
+scope.customSplice = function(member, index){
+  scope.mapOptions.isChange = !scope.mapOptions.isChange;
+  return scope.mapOptions[member].splice(index,1);
+};
+scope.isLocked = function(person, checkFor){
+  return scope.mapOptions.fieldsLocked[checkFor].indexOf(person.name) !== -1;
+};
+scope.mapOptions.getMapJson = function(){
+  var mapJson = [];
+  angular.forEach(scope.mapOptions.map, function(value, index){
+    if(value.source && value.target){
+      var obj = {};
+      obj[value.source.name] = [];
+      obj[value.source.name].push(value.target.name);
+      mapJson.push(obj);
+    }
+  });
+  return mapJson;
+};
+},
+scope: {
+  mapOptions: '=mapOptions'
+},
+'templateUrl': 'row.html'
+}
+});
+})
+.controller('GreeterController', ['$scope', function($scope) {
+  $scope.mapOptions = {
+    'sourceFields': [],
+    'targetFields': [],
+    'isChange': true,
+    'fieldsLocked': {
+      'source': [],
+      'target': []
+    }
+  };
+  $scope.person = {};
+  $scope.mapOptions.sourceFields = [
+  { name: 'Adam',      email: 'adam@email.com',      age: 10 },
+  { name: 'Amalie',    email: 'amalie@email.com',    age: 12 },
+  { name: 'Wladimir',  email: 'wladimir@email.com',  age: 30 },
+  { name: 'Samantha',  email: 'samantha@email.com',  age: 31 },
+  { name: 'Estefanía', email: 'estefanía@email.com', age: 16 },
+  { name: 'Natasha',   email: 'natasha@email.com',   age: 54 },
+  { name: 'Nicole',    email: 'nicole@email.com',    age: 43 },
+  { name: 'Adrian',    email: 'adrian@email.com',    age: 21 }
+  ];
+
+
+  $scope.mapOptions.targetFields = [
+  { name: 'Adam',      email: 'adam@email.com',      age: 10 },
+  { name: 'Amalie',    email: 'amalie@email.com',    age: 12 },
+  { name: 'Wladimir',  email: 'wladimir@email.com',  age: 30 },
+  { name: 'Samantha',  email: 'samantha@email.com',  age: 31 },
+  { name: 'Estefanía', email: 'estefanía@email.com', age: 16 },
+  { name: 'Natasha',   email: 'natasha@email.com',   age: 54 },
+  { name: 'Nicole',    email: 'nicole@email.com',    age: 43 },
+  { name: 'Adrian',    email: 'adrian@email.com',    age: 21 }
+  ];
+
+  $scope.mapOptions.map = [
+  {
+    'source': { name: 'Wladimir'},
+    'target': { name: 'Nicole'}
+  },
+  {
+    'source': { name: 'Samantha'},
+    'target': { name: 'Estefanía'}
+  },
+  {
+    'source': undefined,
+    'target': undefined
+  }
+  ];
+  $scope.popTest = function(){
+    var mapJson = [];
+    if($scope.mapOptions.getMapJson){
+      var mapJson = $scope.mapOptions.getMapJson();
+    }
+    /*$scope.mapOptions.sourceFields.pop();
+    $scope.mapOptions.isChange = !$scope.mapOptions.isChange;*/
+  };
+}]);
+</script>
+<div ng-controller="GreeterController">
+  <button type="button" ng-click="popTest()">popTest</button> <br>
+  <input ng-model="mapOptions.name"> <br>
+  <textarea ng-model="mapOptions.html"></textarea> <br>
+  test <textarea ng-bind="mapOptions.html"></textarea> <br>
+  <div compile map-options="mapOptions"></div>
+</div>
+</body>
+</html>
