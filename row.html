@@ -1,24 +1,33 @@
-<div class="row" ng-repeat="(index, value) in mapOptions.map">
-	<div class="col-md-6">
-		<p>Selected: {{value.source}}</p>
-		<ui-select ng-model="value.source" theme="bootstrap" ng-disabled="disabled" style="width: 300px;">
-		<ui-select-match placeholder="sourceFields" allow-clear="true">{{$select.selected.name}}</ui-select-match>
-		<ui-select-choices ui-disable-choice="isLocked(person, 'source')" repeat="person in mapOptions.sourceFields">
+
+<table class="table">
+	<thead>
+		<tr>
+			<td>source</td>
+			<td>target</td>
+		</tr>
+	</thead>
+	<tbody>
+		<tr ng-repeat="(index, value) in mapOptions.map" data-ng-class="{'danger': (!value.isValid && value.hasOwnProperty('isMandatory')), 'success': (value.isValid && value.hasOwnProperty('isMandatory'))}">
+			<td>
+				<span class="glyphicon glyphicon-asterisk" style="color: red" aria-hidden="true" ng-show="value.isMandatory"></span>
+				<p>Selected: {{value.source}}</p>
+				<ui-select ng-model="value.source" theme="bootstrap" ng-disabled="value.isMandatory" style="width: 300px;">
+				<ui-select-match placeholder="sourceFields" allow-clear="true">{{$select.selected.name}}</ui-select-match>
+				<ui-select-choices ui-disable-choice="isLocked(person, 'source')" repeat="person in mapOptions.sourceFields">
+				<div ng-bind-html="person.name | highlight: $select.search"></div>
+			</ui-select-choices>
+		</ui-select>
+	</td>
+	<td>
+		<p>Selected: {{value.target}}</p>
+		<ui-select ng-model="value.target" theme="bootstrap" ng-disabled="disabled" style="width: 300px;">
+		<ui-select-match placeholder="targetFields" allow-clear="true">{{$select.selected.name}}</ui-select-match>
+		<ui-select-choices ui-disable-choice="isLocked(person, 'target')" repeat="person in mapOptions.targetFields">
 		<div ng-bind-html="person.name | highlight: $select.search"></div>
 	</ui-select-choices>
 </ui-select>
-</div>
-<div class="col-md-5">
-	<p>Selected: {{value.target}}</p>
-	<ui-select ng-model="value.target" theme="bootstrap" ng-disabled="disabled" style="width: 300px;">
-	<ui-select-match placeholder="targetFields" allow-clear="true">{{$select.selected.name}}</ui-select-match>
-	<ui-select-choices ui-disable-choice="isLocked(person, 'target')" repeat="person in mapOptions.targetFields">
-	<div ng-bind-html="person.name | highlight: $select.search"></div>
-</ui-select-choices>
-</ui-select>
-</div>
-
-<div class="col-md-1">
-	<button class="btn" data-ng-class="{'btn-danger': !$last, 'btn-primary': $last}" data-ng-click="modifyRow($index, $last, value)">add</button>
-</div>
-</div>
+<button class="btn" data-ng-class="{'btn-danger': !$last, 'btn-primary': $last}" ng-show="!value.isMandatory" data-ng-click="modifyRow($index, $last, value)">add</button>
+</td>
+</tr>
+</tbody>
+</table>
